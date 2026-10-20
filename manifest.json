@@ -1,0 +1,24 @@
+{
+  "name": "네이버 쇼핑몰 광고 효율 분석 & 최적화 솔루션",
+  "short_name": "네이버광고최적화",
+  "description": "네이버 검색광고·쇼핑검색광고 실시간 API 연동 및 ROAS·입찰가·제외키워드 최적화 대시보드",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#03c75a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%2303c75a'/%3E%3Cpath d='M54 52h28l34 52V52h22v88h-28L76 88v52H54V52z' fill='%23ffffff'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%2303c75a'/%3E%3Cpath d='M144 138h74l90 138V138h60v236h-74l-90-138v138h-60V138z' fill='%23ffffff'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

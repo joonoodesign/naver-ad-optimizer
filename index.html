@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>네이버 쇼핑몰 광고 효율 분석 & 최적화 대시보드</title>
+  <meta name="description" content="네이버 검색광고·쇼핑검색광고 실시간 API 연동 및 ROAS·입찰가·제외키워드 최적화 솔루션" />
+  <meta name="theme-color" content="#03c75a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="네이버광고최적화" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%2303c75a'/%3E%3Cpath d='M54 52h28l34 52V52h22v88h-28L76 88v52H54V52z' fill='%23ffffff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- 상단 헤더 -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="brand-logo">N</div>
+        <div class="brand-title">
+          <h1>
+            네이버 쇼핑몰 광고 최적화 센터
+            <span class="account-pill" id="accountBadge">계정: junhs3973</span>
+          </h1>
+          <p class="brand-subtitle">쇼핑검색·파워링크 실시간 효율 진단 · 누수 키워드 차단 · 목표 ROAS 입찰가 자동 산출</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="sync-badge" id="openSyncModalBtn" title="클라우드 실시간 동기화 설정">
+          <span class="sync-dot" id="syncDot"></span>
+          <span id="syncStatusText">클라우드 동기화 확인 중...</span>
+        </div>
+        <button class="btn btn-primary" id="syncNaverApiBtn">🔄 네이버 API 실시간 조회</button>
+        <label class="btn" for="csvUploadInput" style="cursor:pointer;">📂 보고서(CSV/엑셀) 업로드</label>
+        <input type="file" id="csvUploadInput" accept=".csv,.tsv,.txt,.xls,.xlsx" style="display:none;" />
+        <button class="btn" id="openTutorialBtn">❓ 사용법</button>
+        <button class="btn" id="themeToggleBtn" title="다크/라이트 모드 전환">🌙 테마</button>
+      </div>
+    </header>
+
+    <!-- 네이버 검색광고 API 빠른 연동 배너 -->
+    <section class="api-status-banner" id="apiStatusBanner">
+      <div class="api-banner-left">
+        <span class="api-banner-icon">🔑</span>
+        <div class="api-banner-text" id="apiBannerMessage">
+          <strong>[junhs3973]</strong> 계정의 <strong>Access License</strong>와 <strong>Secret Key</strong>가 준비되었습니다!
+          네이버 검색광고 센터(<code>도구 &gt; API 사용 관리</code>)의 <strong>숫자형 CUSTOMER_ID</strong>를 입력하거나 보고서 파일을 올리면 실제 데이터가 즉시 반영됩니다.
+        </div>
+      </div>
+      <div class="api-banner-controls">
+        <input
+          type="text"
+          id="quickCustomerIdInput"
+          placeholder="숫자 CUSTOMER_ID (예: 2849102)"
+          style="background:var(--bg-input);border:1px solid var(--border-color);color:var(--text-main);padding:7px 11px;border-radius:7px;font-size:0.83rem;width:210px;"
+        />
+        <button class="btn btn-primary btn-sm" id="quickSaveCustomerIdBtn">연동 & 즉시 조회</button>
+        <button class="btn btn-sm" id="goToApiSettingsBtn">⚙️ API 상세 설정</button>
+      </div>
+    </section>
+
+    <!-- 마진율(손익분기 ROAS) & 분석 기준 컨트롤 바 -->
+    <section class="control-bar">
+      <div class="control-group">
+        <div class="control-item">
+          <label for="marginRateInput">💰 내 쇼핑몰 평균 마진율(%)</label>
+          <input type="number" id="marginRateInput" min="5" max="95" step="1" value="35" style="width:74px;" />
+          <span class="bep-pill" id="bepRoasText">손익분기 ROAS: 286%</span>
+        </div>
+        <div class="control-item">
+          <label for="targetRoasInput">🎯 목표 ROAS(%)</label>
+          <input type="number" id="targetRoasInput" min="100" max="2000" step="10" value="400" style="width:84px;" />
+        </div>
+        <div class="control-item">
+          <label for="minLeakCostInput">🚨 누수 판정 기준 광고비(원)</label>
+          <input type="number" id="minLeakCostInput" min="1000" step="1000" value="15000" style="width:100px;" />
+        </div>
+      </div>
+      <div class="control-group">
+        <span style="font-size:0.8rem;color:var(--text-sub);" id="lastUpdatedLabel">데이터 기준: 최근 14일 누적</span>
+        <button class="btn btn-sm" id="openAddDataModalBtn">➕ 상품/키워드 직접 추가</button>
+      </div>
+    </section>
+
+    <!-- 6대 핵심 KPI 요약 카드 -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label"><span>총 광고비 지출</span><span>💸</span></div>
+        <div class="kpi-value" id="kpiTotalCost">0원</div>
+        <div class="kpi-sub" id="kpiCostSub">일평균 0원 소진</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>총 전환매출액</span><span>📈</span></div>
+        <div class="kpi-value" id="kpiTotalSales">0원</div>
+        <div class="kpi-sub good" id="kpiSalesSub">객단가 0원</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>평균 ROAS</span><span>🎯</span></div>
+        <div class="kpi-value" id="kpiAvgRoas">0%</div>
+        <div class="kpi-sub" id="kpiProfitSub">추정 순수익: 0원</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>평균 클릭비용 (CPC)</span><span>🖱️</span></div>
+        <div class="kpi-value" id="kpiAvgCpc">0원</div>
+        <div class="kpi-sub" id="kpiClicksSub">총 클릭수 0회</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>평균 클릭률 (CTR)</span><span>👀</span></div>
+        <div class="kpi-value" id="kpiAvgCtr">0.00%</div>
+        <div class="kpi-sub" id="kpiImprSub">총 노출수 0회</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><span>전환수 & 전환율(CVR)</span><span>🛒</span></div>
+        <div class="kpi-value" id="kpiTotalConv">0건</div>
+        <div class="kpi-sub" id="kpiCvrSub">구매전환율 0.00%</div>
+      </div>
+    </section>
+
+    <!-- 메인 5개 탭 버튼 -->
+    <nav class="main-tabs">
+      <button class="tab-btn active" data-tab="tab-dashboard">
+        📊 종합 현황 & 트렌드
+      </button>
+      <button class="tab-btn" data-tab="tab-actions">
+        💡 AI 효율 개선 액션 <span class="tab-count" id="actionTotalBadge">0</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-products">
+        📦 쇼핑검색 상품(소재) 분석 <span class="tab-count" id="productCountBadge">0</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-keywords">
+        🔑 키워드 & 제외키워드 <span class="tab-count" id="keywordCountBadge">0</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-settings">
+        ⚙️ 최적화 일지 & API/동기화
+      </button>
+    </nav>
+
+    <!-- 탭 1: 종합 현황 & 트렌드 -->
+    <main class="tab-pane active" id="tab-dashboard">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📈 일자별 광고비 vs 전환매출 & ROAS 추이</div>
+              <div class="card-desc">초록 막대: 전환매출액 / 파란 막대: 광고비 / 노란 선: ROAS(%)</div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendChartCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🩺 계정 광고 효율 종합 진단 브리핑</div>
+              <div class="card-desc">현재 마진율과 손익분기 ROAS 기준 자동 진단 결과</div>
+            </div>
+          </div>
+          <div class="health-score-box">
+            <div class="score-circle" id="healthScoreCircle">
+              <strong id="healthScoreValue">82</strong>
+              <span>효율 점수</span>
+            </div>
+            <div>
+              <div style="font-weight:800;font-size:0.98rem;margin-bottom:4px;" id="healthScoreTitle">
+                고효율 상품 집중 시 ROAS +115%p 상승 가능!
+              </div>
+              <div style="font-size:0.82rem;color:var(--text-sub);" id="healthScoreSummary">
+                누수 키워드만 차단해도 월 예상 낭비 광고비를 크게 절감할 수 있습니다.
+              </div>
+            </div>
+          </div>
+          <div class="insight-list" id="dashboardInsightList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🗂️ 캠페인별 성과 요약 및 예산 효율 비교</div>
+            <div class="card-desc">캠페인별 총비용, 전환매출, ROAS, 추정 순수익(마진 반영) 비교</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>캠페인명</th>
+                <th>캠페인 유형</th>
+                <th class="num-col">일예산</th>
+                <th class="num-col">노출수</th>
+                <th class="num-col">클릭수</th>
+                <th class="num-col">CTR</th>
+                <th class="num-col">평균 CPC</th>
+                <th class="num-col">총 광고비</th>
+                <th class="num-col">전환수</th>
+                <th class="num-col">전환매출액</th>
+                <th class="num-col">ROAS</th>
+                <th class="num-col">추정 순이익</th>
+                <th>진단 상태</th>
+              </tr>
+            </thead>
+            <tbody id="campaignTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- 탭 2: AI 효율 개선 액션 (핵심 최적화) -->
+    <section class="tab-pane" id="tab-actions">
+      <div class="card" style="background:linear-gradient(135deg, rgba(3,199,90,0.12), rgba(59,130,246,0.08));">
+        <div class="card-header" style="margin-bottom:6px;">
+          <div>
+            <div class="card-title">🚀 예상 효율 개선 시뮬레이션 요약</div>
+            <div class="card-desc">아래 4가지 추천 액션을 적용했을 때 기대되는 월간 성과 변화입니다.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="copyAllNegativeBtn">📋 추천 제외키워드 전체 복사</button>
+        </div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;font-size:0.9rem;">
+          <div>🚨 <strong>절감 가능 누수 광고비:</strong> <span style="color:var(--danger);font-weight:800;" id="simSavedCost">0원</span></div>
+          <div>📈 <strong>스케일업 예상 추가 매출:</strong> <span style="color:var(--primary);font-weight:800;" id="simAddedSales">+0원</span></div>
+          <div>🎯 <strong>최적화 후 예상 ROAS:</strong> <span style="color:var(--accent);font-weight:800;" id="simExpectedRoas">0%</span></div>
+        </div>
+      </div>
+
+      <div class="action-grid">
+        <!-- 1. 광고비 누수 차단 -->
+        <div class="action-card leak">
+          <div class="card-header" style="margin-bottom:0;">
+            <div>
+              <div class="card-title">🚨 1. 광고비 누수 차단 (즉시 제외/중지 대상)</div>
+              <div class="card-desc">광고비는 지출되는데 전환이 0건이거나 손익분기 미만인 적자 항목</div>
+            </div>
+            <span class="badge badge-bad" id="leakActionCount">0건</span>
+          </div>
+          <div class="action-item-list" id="leakActionList"></div>
+        </div>
+
+        <!-- 2. 고효율 스케일업 -->
+        <div class="action-card scale">
+          <div class="card-header" style="margin-bottom:0;">
+            <div>
+              <div class="card-title">🚀 2. 고효율 스케일업 (입찰가 상향 추천)</div>
+              <div class="card-desc">목표 ROAS를 초과 달성 중이나 노출 순위가 낮아 기회를 놓치는 효자 항목</div>
+            </div>
+            <span class="badge badge-good" id="scaleActionCount">0건</span>
+          </div>
+          <div class="action-item-list" id="scaleActionList"></div>
+        </div>
+
+        <!-- 3. CTR(클릭률) 개선 필요 -->
+        <div class="action-card ctr">
+          <div class="card-header" style="margin-bottom:0;">
+            <div>
+              <div class="card-title">🎨 3. 썸네일·상품명 개선 대상 (저조한 CTR)</div>
+              <div class="card-desc">노출수는 많지만 클릭률(CTR)이 낮아 대표 이미지·상품명·리뷰 보완이 필요한 상품</div>
+            </div>
+            <span class="badge badge-warn" id="ctrActionCount">0건</span>
+          </div>
+          <div class="action-item-list" id="ctrActionList"></div>
+        </div>
+
+        <!-- 4. CPC 과열 입찰가 인하 -->
+        <div class="action-card cpc">
+          <div class="card-header" style="margin-bottom:0;">
+            <div>
+              <div class="card-title">⚖️ 4. 과열 입찰가 인하 조정 (적정 CPC 초과)</div>
+              <div class="card-desc">구매 전환은 발생하지만 클릭당 비용(CPC)이 너무 높아 마진이 남지 않는 항목</div>
+            </div>
+            <span class="badge badge-info" id="cpcActionCount">0건</span>
+          </div>
+          <div class="action-item-list" id="cpcActionList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 탭 3: 쇼핑검색 상품(소재) 분석 -->
+    <section class="tab-pane" id="tab-products">
+      <div class="card">
+        <div class="table-toolbar">
+          <div>
+            <div class="card-title">📦 쇼핑검색 광고 상품(소재)별 정밀 손익 분석</div>
+            <div class="card-desc">각 상품의 ROAS뿐만 아니라 실제 마진율을 반영한 <strong>순수익(매출×마진율 - 광고비)</strong>과 <strong>권장 입찰가</strong>를 계산합니다.</div>
+          </div>
+          <div class="filter-bar">
+            <input type="text" id="productSearchInput" placeholder="상품명 또는 광고그룹 검색..." />
+            <select id="productStatusFilter">
+              <option value="all">전체 상태 보기</option>
+              <option value="scale">🚀 스케일업(고효율)</option>
+              <option value="good">✅ 정상 수익 구간</option>
+              <option value="cpc">⚖️ 입찰가 인하 필요</option>
+              <option value="leak">🚨 광고비 누수(적자)</option>
+            </select>
+            <select id="productSortSelect">
+              <option value="cost_desc">광고비 높은 순</option>
+              <option value="sales_desc">전환매출 높은 순</option>
+              <option value="roas_desc">ROAS 높은 순</option>
+              <option value="profit_asc">적자(손실) 큰 순</option>
+              <option value="profit_desc">순이익 높은 순</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>상품명 (소재) / 광고그룹</th>
+                <th class="num-col">현재 입찰가</th>
+                <th class="num-col">평균순위</th>
+                <th class="num-col">노출수</th>
+                <th class="num-col">클릭수 (CTR)</th>
+                <th class="num-col">평균 CPC</th>
+                <th class="num-col">총 광고비</th>
+                <th class="num-col">전환수 (CVR)</th>
+                <th class="num-col">전환매출액</th>
+                <th class="num-col">ROAS</th>
+                <th class="num-col">실질 순이익</th>
+                <th class="num-col">AI 권장 입찰가</th>
+                <th>최적화 처방</th>
+              </tr>
+            </thead>
+            <tbody id="productTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 탭 4: 키워드 & 제외키워드 관리 + 적정 CPC 계산기 -->
+    <section class="tab-pane" id="tab-keywords">
+      <div class="grid-2">
+        <!-- 제외키워드 보관함 -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🚫 제외 키워드(Negative Keywords) 원클릭 추출기</div>
+              <div class="card-desc">네이버 검색광고 <code>쇼핑검색 &gt; 광고그룹 &gt; 제외 키워드</code>에 그대로 붙여넣어 광고비 누수를 막으세요.</div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="copyNegativeListBtn">📋 목록 복사하기</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input
+              type="text"
+              id="manualNegativeInput"
+              placeholder="직접 추가할 제외 키워드 입력 (예: 중고, 대여, 무료나눔)"
+              style="flex:1;background:var(--bg-input);border:1px solid var(--border-color);color:var(--text-main);padding:8px 12px;border-radius:8px;"
+            />
+            <button class="btn btn-sm" id="addManualNegativeBtn">추가</button>
+          </div>
+          <div id="negativeKeywordTags" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--bg-input);border-radius:10px;min-height:88px;border:1px solid var(--border-color);"></div>
+        </div>
+
+        <!-- 목표 ROAS 적정 입찰가(Max CPC) 계산기 -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🧮 목표 ROAS 기반 적정 입찰가(Max CPC) 계산기</div>
+              <div class="card-desc">내 상품 가격과 전환율을 넣으면 손해 보지 않는 최대 클릭비용(CPC)을 계산합니다.</div>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-bottom:12px;">
+            <div class="form-field">
+              <label>상품 판매가(객단가, 원)</label>
+              <input type="number" id="calcPrice" value="38000" step="1000" />
+            </div>
+            <div class="form-field">
+              <label>상품 마진율(%)</label>
+              <input type="number" id="calcMargin" value="35" step="1" />
+            </div>
+            <div class="form-field">
+              <label>평균 구매전환율 CVR(%)</label>
+              <input type="number" id="calcCvr" value="2.8" step="0.1" />
+            </div>
+            <div class="form-field">
+              <label>목표 ROAS(%)</label>
+              <input type="number" id="calcTargetRoas" value="400" step="10" />
+            </div>
+          </div>
+          <div style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:10px;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div style="font-size:0.78rem;color:var(--text-sub);">손익분기 최대 허용 CPC</div>
+              <div style="font-size:1.15rem;font-weight:800;color:var(--warning);" id="calcBepCpcResult">372원</div>
+            </div>
+            <div>
+              <div style="font-size:0.78rem;color:var(--text-sub);">목표 ROAS 달성 권장 입찰가</div>
+              <div style="font-size:1.25rem;font-weight:900;color:var(--primary);" id="calcTargetCpcResult">266원</div>
+            </div>
+            <div>
+              <div style="font-size:0.78rem;color:var(--text-sub);">1건 판매당 순마진</div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--accent);" id="calcUnitProfitResult">3,800원</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 키워드 성과 테이블 -->
+      <div class="card">
+        <div class="table-toolbar">
+          <div>
+            <div class="card-title">🔑 키워드 및 쇼핑 확장검색어 효율 분석</div>
+            <div class="card-desc">클릭 대비 전환율이 높은 핵심 키워드와 광고비만 소진하는 비효율 검색어를 구분합니다.</div>
+          </div>
+          <div class="filter-bar">
+            <input type="text" id="keywordSearchInput" placeholder="키워드명 검색..." />
+            <select id="keywordFilterSelect">
+              <option value="all">전체 키워드</option>
+              <option value="leak">🚨 제외 키워드 후보 (누수)</option>
+              <option value="scale">🚀 입찰가 상향 추천 (고효율)</option>
+              <option value="cpc">⚖️ 입찰가 인하 추천</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>키워드 / 확장검색어</th>
+                <th>소속 캠페인 · 광고그룹</th>
+                <th class="num-col">현재 입찰가</th>
+                <th class="num-col">평균순위</th>
+                <th class="num-col">노출수</th>
+                <th class="num-col">클릭수 (CTR)</th>
+                <th class="num-col">평균 CPC</th>
+                <th class="num-col">총 광고비</th>
+                <th class="num-col">전환수 (CVR)</th>
+                <th class="num-col">전환매출액</th>
+                <th class="num-col">ROAS</th>
+                <th class="num-col">권장 입찰가</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody id="keywordTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 탭 5: 최적화 일지 & API / 클라우드 동기화 설정 -->
+    <section class="tab-pane" id="tab-settings">
+      <!-- 파일 드래그 앤 드롭 업로드 영역 -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📂 네이버 검색광고 보고서(CSV / 엑셀) 1초 업로드 분석</div>
+            <div class="card-desc">네이버 검색광고 센터에서 내려받은 다차원 보고서 또는 캠페인·상품·키워드 보고서 파일을 아래에 끌어다 놓으세요.</div>
+          </div>
+        </div>
+        <div class="dropzone" id="reportDropzone">
+          <div style="font-size:2rem;margin-bottom:6px;">📊</div>
+          <div style="font-weight:800;font-size:0.96rem;margin-bottom:4px;">여기에 네이버 광고 보고서 파일(.csv, .tsv, .txt)을 드래그하거나 클릭하여 선택하세요</div>
+          <div style="font-size:0.8rem;color:var(--text-sub);">캠페인, 광고그룹, 소재(상품명), 키워드, 노출수, 클릭수, 총비용, 전환수, 전환매출액 컬럼을 자동 인식합니다.</div>
+        </div>
+      </div>
+
+      <div class="grid-equal">
+        <!-- 네이버 검색광고 API 설정 -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔑 네이버 검색광고 API 실시간 연동 설정</div>
+              <div class="card-desc">입력하신 키는 외부 저장소에 절대 노출되지 않으며 내 기기와 암호화 동기화 링크에만 안전하게 보관됩니다.</div>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>네이버 로그인 ID (표시용)</label>
+              <input type="text" id="apiLoginIdInput" placeholder="junhs3973" />
+            </div>
+            <div class="form-field">
+              <label>내 계정 숫자형 CUSTOMER_ID (필수 ★)</label>
+              <input type="text" id="apiCustomerIdInput" placeholder="예: 2849102 (도구 > API 사용 관리에서 확인)" />
+            </div>
+            <div class="form-field" style="grid-column:1 / -1;">
+              <label>액세스 라이선스 (Access License)</label>
+              <input type="text" id="apiAccessLicenseInput" placeholder="0100000000..." />
+            </div>
+            <div class="form-field" style="grid-column:1 / -1;">
+              <label>비밀키 (Secret Key)</label>
+              <input type="password" id="apiSecretKeyInput" placeholder="AQAAAAD..." />
+            </div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="saveAndFetchApiBtn">💾 API 키 저장 & 실시간 데이터 불러오기</button>
+            <button class="btn" id="toggleSecretViewBtn">👁️ 비밀키 보기/숨기기</button>
+          </div>
+          <div id="apiTestResultBox" style="margin-top:12px;padding:11px 14px;border-radius:8px;background:var(--bg-input);border:1px solid var(--border-color);font-size:0.82rem;color:var(--text-sub);">
+            💡 <strong>숫자형 CUSTOMER_ID 확인 팁:</strong> <a href="https://manage.searchad.naver.com" target="_blank" style="color:var(--primary);">네이버 검색광고 관리시스템</a> 상단 <code>[도구] &gt; [API 사용 관리]</code> 클릭 시 화면 상단에 <code>내 계정 : [CUSTOMER_ID = 1234567]</code> 형태로 적혀 있는 <strong>숫자</strong>를 넣어주시면 실시간 API 조회가 작동합니다.
+          </div>
+        </div>
+
+        <!-- 최적화 작업 히스토리 일지 -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📝 광고 최적화 작업 일지 (히스토리)</div>
+              <div class="card-desc">입찰가 조정, 제외 키워드 등록, 썸네일 교체 내역을 기록하여 전·후 ROAS 변화를 관리하세요.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+            <input
+              type="text"
+              id="newLogTextInput"
+              placeholder="예: 비효율 확장키워드 8개 제외 등록 & 주력 상품 입찰가 250원->320원 상향"
+              style="flex:1;min-width:200px;background:var(--bg-input);border:1px solid var(--border-color);color:var(--text-main);padding:8px 12px;border-radius:8px;"
+            />
+            <button class="btn btn-primary btn-sm" id="addOptLogBtn">기록 추가</button>
+          </div>
+          <div class="action-item-list" id="optLogList" style="max-height:240px;"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 모달 1: 사용법 튜토리얼 모달 -->
+  <div class="modal-overlay" id="tutorialModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>📘 네이버 쇼핑몰 광고 효율 분석 & 최적화 사용 가이드</h3>
+        <button class="close-btn" data-close="tutorialModal">&times;</button>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>STEP 1. 내 네이버 광고 계정 실시간 연동하기 (2가지 방법)</h4>
+        <ul>
+          <li><strong>방법 A (실시간 API 연동):</strong> 현재 <code>junhs3973</code> 계정의 Access License와 Secret Key가 등록되어 있습니다. <a href="https://manage.searchad.naver.com" target="_blank" style="color:var(--primary);">네이버 검색광고 관리시스템</a> ➔ <code>[도구] &gt; [API 사용 관리]</code>에서 <strong>숫자형 CUSTOMER_ID</strong>만 상단 입력창에 넣으면 캠페인·광고그룹·상품·키워드 성과를 실시간으로 불러옵니다.</li>
+          <li><strong>방법 B (보고서 1초 업로드):</strong> 상단의 <strong>[📂 보고서 업로드]</strong> 버튼을 눌러 네이버 광고 센터에서 다운로드한 CSV/엑셀 보고서를 올리면 즉시 정밀 분석됩니다.</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>STEP 2. 내 쇼핑몰 평균 마진율(%) 설정하기</h4>
+        <p>상단 컨트롤 바에 <strong>내 쇼핑몰 평균 마진율(예: 35%)</strong>을 입력하면 자동으로 <strong>손익분기 ROAS(예: 286%)</strong>가 계산됩니다. 모든 상품과 키워드가 이 기준에 따라 흑자/적자로 자동 판별됩니다.</p>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>STEP 3. [💡 AI 효율 개선 액션] 탭에서 4대 최적화 실행하기</h4>
+        <ul>
+          <li>🚨 <strong>광고비 누수 차단:</strong> 돈만 쓰고 전환이 없는 검색어를 원클릭 복사하여 네이버 광고그룹의 <code>제외 키워드</code>에 등록하세요.</li>
+          <li>🚀 <strong>고효율 스케일업:</strong> ROAS는 높지만 순위가 밀려 노출이 적은 효자 상품의 입찰가를 AI 권장 입찰가로 상향하세요.</li>
+          <li>🎨 <strong>CTR(클릭률) 개선:</strong> 노출 대비 클릭이 적은 상품은 스마트스토어 대표 썸네일과 상품명 앞단 키워드를 점검하세요.</li>
+          <li>⚖️ <strong>과열 입찰가 인하:</strong> 전환은 나지만 CPC가 너무 비싸 적자인 키워드는 권장 입찰가로 낮춰 순이익을 확보하세요.</li>
+        </ul>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>STEP 4. 아이폰·아이패드·PC 24시간 무료 클라우드 동기화</h4>
+        <p>상단 <strong>[클라우드 동기화]</strong> 배지를 누르면 GitHub <code>db-store</code> 및 내 <strong>구글 드라이브(Google Drive)</strong>와 24시간 실시간 연동되며, 컴퓨터를 꺼놓아도 스마트폰에서 언제든 확인·관리할 수 있습니다.</p>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+        <button class="btn btn-primary" data-close="tutorialModal">확인했습니다 (시작하기)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 2: 클라우드 & 구글 드라이브 동기화 설정 모달 -->
+  <div class="modal-overlay" id="syncModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>☁️ 24시간 무료 클라우드 DB & 구글 드라이브 실시간 동기화</h3>
+        <button class="close-btn" data-close="syncModal">&times;</button>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>1️⃣ 원클릭 자동 연결 링크 & QR코드 (아이폰·아이패드·PC 즉시 연동)</h4>
+        <p id="syncModalStatusText">현재 클라우드 동기화 상태를 확인하고 있습니다.</p>
+        <div id="qrBox" style="display:none;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap;">
+          <img id="qrImg" src="" alt="동기화 QR" style="width:130px;height:130px;border-radius:10px;background:#fff;padding:6px;" />
+          <div style="flex:1;min-width:200px;">
+            <p style="margin-bottom:8px;">아이폰·아이패드 카메라로 QR코드를 스캔하거나 아래 원클릭 링크를 카카오톡 나에게 보내기로 전송해 터치하면 API 키와 DB가 즉시 자동 연결됩니다.</p>
+            <button class="btn btn-primary btn-sm" id="copyOneClickLinkBtn">🔗 카카오톡 전달용 원클릭 자동 연결 링크 복사</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>2️⃣ GitHub 클라우드 실시간 DB 동기화 (db-store 브랜치)</h4>
+        <div class="form-grid" style="margin-top:8px;">
+          <div class="form-field" style="grid-column:1 / -1;">
+            <label>GitHub Personal Access Token (저장소 코드에 노출되지 않고 브라우저에만 저장됨)</label>
+            <input type="password" id="ghTokenInput" placeholder="ghp_... 또는 github_pat_..." />
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="saveGhTokenBtn">GitHub 클라우드 연결 저장</button>
+          <button class="btn btn-sm" id="forceCloudPullBtn">⬇️ 클라우드에서 불러오기</button>
+          <button class="btn btn-sm" id="forceCloudPushBtn">⬆️ 클라우드로 즉시 저장</button>
+        </div>
+      </div>
+
+      <div class="tutorial-step">
+        <h4>3️⃣ 내 구글 드라이브(Google Drive + Apps Script) DB & 네이버 API 클라우드 프록시 연동</h4>
+        <p style="margin-bottom:8px;">구글 드라이브에 데이터를 저장함과 동시에, 컴퓨터를 꺼놓아도 모바일에서 네이버 검색광고 API를 CORS 제한 없이 24시간 호출해 주는 브릿지로 작동합니다.</p>
+        <div class="form-grid">
+          <div class="form-field" style="grid-column:1 / -1;">
+            <label>구글 앱스 스크립트 웹 앱 URL (선택)</label>
+            <input type="text" id="gDriveUrlInput" placeholder="https://script.google.com/macros/s/.../exec" />
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" id="saveGDriveUrlBtn">구글 드라이브 URL 저장</button>
+          <button class="btn btn-sm" id="copyGasCodeBtn">📋 구글 드라이브 연동 & API 프록시 스크립트 복사</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+        <button class="btn" data-close="syncModal">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 모달 3: 상품/키워드 수동 추가 모달 -->
+  <div class="modal-overlay" id="addDataModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>➕ 분석 대상 상품(소재) 또는 키워드 직접 추가</h3>
+        <button class="close-btn" data-close="addDataModal">&times;</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>구분</label>
+          <select id="newItemType">
+            <option value="product">📦 쇼핑검색 상품(소재)</option>
+            <option value="keyword">🔑 검색 키워드</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>캠페인명</label>
+          <input type="text" id="newItemCampaign" value="쇼핑검색_주력상품" />
+        </div>
+        <div class="form-field">
+          <label>광고그룹명</label>
+          <input type="text" id="newItemAdGroup" value="베스트_인기상품그룹" />
+        </div>
+        <div class="form-field">
+          <label>상품명 또는 키워드명</label>
+          <input type="text" id="newItemName" placeholder="예: 프리미엄 초경량 폴딩 카트" />
+        </div>
+        <div class="form-field">
+          <label>현재 입찰가(원)</label>
+          <input type="number" id="newItemBid" value="250" />
+        </div>
+        <div class="form-field">
+          <label>평균 노출순위</label>
+          <input type="number" id="newItemRank" value="3.2" step="0.1" />
+        </div>
+        <div class="form-field">
+          <label>노출수</label>
+          <input type="number" id="newItemImpr" value="4500" />
+        </div>
+        <div class="form-field">
+          <label>클릭수</label>
+          <input type="number" id="newItemClicks" value="95" />
+        </div>
+        <div class="form-field">
+          <label>총 광고비(원)</label>
+          <input type="number" id="newItemCost" value="22800" />
+        </div>
+        <div class="form-field">
+          <label>전환수(구매건수)</label>
+          <input type="number" id="newItemConv" value="4" />
+        </div>
+        <div class="form-field">
+          <label>전환매출액(원)</label>
+          <input type="number" id="newItemSales" value="152000" />
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+        <button class="btn" data-close="addDataModal">취소</button>
+        <button class="btn btn-primary" id="confirmAddItemBtn">추가하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-box" id="toastBox">복사되었습니다!</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
