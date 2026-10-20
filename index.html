@@ -86,6 +86,18 @@
     </section>
 
     <!-- 6대 핵심 KPI 요약 카드 -->
+    <!-- 2026-10-20 기준일 대비 전·후(Before & After) 효율 비교 보드 -->
+    <section class="card" id="baselineComparisonCard" style="border:1px solid rgba(3, 199, 90, 0.45);background:linear-gradient(135deg, rgba(3,199,90,0.09) 0%, rgba(59,130,246,0.07) 100%);margin-bottom:16px;padding:16px 20px;">
+      <div class="card-header" style="margin-bottom:10px;">
+        <div>
+          <div class="card-title">📅 2026-10-20 (최적화 시작일) 대비 전·후 효율 변화 비교 보드</div>
+          <div class="card-desc">오늘(2026-10-20) 초기 상태와 현재 최적화 상태를 실시간으로 비교합니다. (전화상담 상품은 끄지 않고 클릭당 단가를 450원으로 낮춰 유입 기회를 극대화했습니다!)</div>
+        </div>
+        <span class="badge badge-good" id="baselineStatusBadge">✅ 1차 API 입찰 최적화 적용 완료</span>
+      </div>
+      <div id="baselineCompareGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:10px;"></div>
+    </section>
+
     <section class="kpi-grid">
       <div class="kpi-card">
         <div class="kpi-label"><span>총 광고비 지출</span><span>💸</span></div>
