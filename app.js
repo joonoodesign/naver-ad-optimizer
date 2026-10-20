@@ -3,7 +3,7 @@
  * 지원 기기: 아이폰(iOS), 아이패드(iPadOS), PC 웹 브라우저 24시간 실시간 동기화
  */
 
-const STORAGE_KEY = 'naver_ad_optimizer_data_v1';
+const STORAGE_KEY = 'naver_ad_optimizer_data_v2';
 const SYNC_CONFIG_KEY = 'naver_ad_optimizer_sync_cfg_v1';
 const API_CONFIG_KEY = 'naver_ad_optimizer_api_cfg_v1';
 const THEME_KEY = 'naver_ad_optimizer_theme';
@@ -34,274 +34,748 @@ function getDateStrDaysAgo(daysAgo) {
 
 // 초기 샘플 데이터 (실제 API 연동 또는 보고서 업로드 전에도 모든 최적화 시뮬레이션 기능을 즉시 체험 및 활용할 수 있도록 구성)
 function getDefaultData() {
-  const dailyTrends = [];
-  const baseCosts = [48000, 52000, 49500, 61000, 58000, 64000, 55000, 51000, 59000, 63000, 67500, 62000, 58500, 65000];
-  const baseSales = [165000, 198000, 152000, 245000, 228000, 279000, 189000, 176000, 234000, 268000, 312000, 254000, 241000, 295000];
-
-  for (let i = 13; i >= 0; i--) {
-    const idx = 13 - i;
-    const cost = baseCosts[idx];
-    const sales = baseSales[idx];
-    dailyTrends.push({
-      date: getDateStrDaysAgo(i).slice(5),
-      cost,
-      sales,
-      roas: cost > 0 ? Math.round((sales / cost) * 100) : 0
-    });
-  }
-
   return {
-    updatedAt: Date.now(),
-    dataSourceLabel: '샘플 시뮬레이션 데이터 (API 숫자형 CUSTOMER_ID 입력 또는 보고서 업로드 시 실제 데이터로 전환)',
-    settings: {
-      marginRate: 35,
-      targetRoas: 400,
-      minLeakCost: 15000
+  "updatedAt": 1792458839420,
+  "dataSourceLabel": "실시간 API 연동 완료: 주누디자인 (CUSTOMER_ID: 1571548 | 비즈머니 잔액: 93,764원 | 최근 30일 집계)",
+  "settings": {
+    "marginRate": 50,
+    "targetRoas": 400,
+    "minLeakCost": 5000
+  },
+  "campaigns": [
+    {
+      "id": "cmp-a001-01-000000009922167",
+      "name": "파워) 주누 (일시중지)",
+      "type": "파워링크",
+      "dailyBudget": 10000,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
     },
-    campaigns: [
-      {
-        id: 'cmp-1',
-        name: '쇼핑검색_주력베스트상품',
-        type: '쇼핑검색(상품형)',
-        dailyBudget: 50000,
-        impressions: 84200,
-        clicks: 1680,
-        cost: 436800,
-        conversions: 58,
-        sales: 2204000
-      },
-      {
-        id: 'cmp-2',
-        name: '쇼핑검색_신상품_확장노출',
-        type: '쇼핑검색(상품형)',
-        dailyBudget: 30000,
-        impressions: 52400,
-        clicks: 940,
-        cost: 249100,
-        conversions: 19,
-        sales: 684000
-      },
-      {
-        id: 'cmp-3',
-        name: '파워링크_브랜드및핵심키워드',
-        type: '파워링크(검색형)',
-        dailyBudget: 20000,
-        impressions: 19800,
-        clicks: 410,
-        cost: 127100,
-        conversions: 11,
-        sales: 348000
-      }
-    ],
-    products: [
-      {
-        id: 'prd-1',
-        name: '[주력] 프리미엄 고밀도 워싱 차렵이불 패드 세트',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_사계절주력',
-        bid: 280,
-        avgRank: 3.8,
-        impressions: 32500,
-        clicks: 715,
-        cost: 185900,
-        conversions: 31,
-        sales: 1209000
-      },
-      {
-        id: 'prd-2',
-        name: '[특가] 알러지케어 먼지없는 호텔식 베개커버 1+1',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_베개커버',
-        bid: 240,
-        avgRank: 4.5,
-        impressions: 24800,
-        clicks: 520,
-        cost: 119600,
-        conversions: 21,
-        sales: 756000
-      },
-      {
-        id: 'prd-3',
-        name: '순면 피그먼트 워싱 침대 패드 퀸/킹 사이즈',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_패드단품',
-        bid: 350,
-        avgRank: 1.8,
-        impressions: 26900,
-        clicks: 445,
-        cost: 131300,
-        conversions: 6,
-        sales: 239000
-      },
-      {
-        id: 'prd-4',
-        name: '북유럽 인테리어 거실 러그 워셔블 카페트 대형',
-        campaign: '쇼핑검색_신상품_확장노출',
-        adGroup: '리빙_러그카페트',
-        bid: 320,
-        avgRank: 2.1,
-        impressions: 18900,
-        clicks: 380,
-        cost: 114000,
-        conversions: 1,
-        sales: 45000
-      },
-      {
-        id: 'prd-5',
-        name: '생활방수 패브릭 소파패드 미끄럼방지 3인용 4인용',
-        campaign: '쇼핑검색_신상품_확장노출',
-        adGroup: '리빙_소파패드',
-        bid: 220,
-        avgRank: 5.2,
-        impressions: 19200,
-        clicks: 165,
-        cost: 34650,
-        conversions: 7,
-        sales: 266000
-      },
-      {
-        id: 'prd-6',
-        name: '무소음 모던 인테리어 벽시계 거실 오브제',
-        campaign: '쇼핑검색_신상품_확장노출',
-        adGroup: '인테리어_소품',
-        bid: 290,
-        avgRank: 2.4,
-        impressions: 14300,
-        clicks: 395,
-        cost: 100450,
-        conversions: 11,
-        sales: 373000
-      }
-    ],
-    keywords: [
-      {
-        id: 'kw-1',
-        keyword: '알러지케어차렵이불',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_사계절주력',
-        bid: 270,
-        avgRank: 3.9,
-        impressions: 14200,
-        clicks: 340,
-        cost: 88400,
-        conversions: 17,
-        sales: 663000
-      },
-      {
-        id: 'kw-2',
-        keyword: '호텔식베개커버',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_베개커버',
-        bid: 230,
-        avgRank: 4.6,
-        impressions: 11800,
-        clicks: 265,
-        cost: 58300,
-        conversions: 12,
-        sales: 432000
-      },
-      {
-        id: 'kw-3',
-        keyword: '이불세탁망',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_사계절주력',
-        bid: 260,
-        avgRank: 2.1,
-        impressions: 8400,
-        clicks: 195,
-        cost: 48750,
-        conversions: 0,
-        sales: 0
-      },
-      {
-        id: 'kw-4',
-        keyword: '저렴한원룸이불',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_사계절주력',
-        bid: 250,
-        avgRank: 2.3,
-        impressions: 6200,
-        clicks: 140,
-        cost: 33600,
-        conversions: 0,
-        sales: 0
-      },
-      {
-        id: 'kw-5',
-        keyword: '거실대형러그',
-        campaign: '쇼핑검색_신상품_확장노출',
-        adGroup: '리빙_러그카페트',
-        bid: 330,
-        avgRank: 1.9,
-        impressions: 9500,
-        clicks: 210,
-        cost: 65100,
-        conversions: 0,
-        sales: 0
-      },
-      {
-        id: 'kw-6',
-        keyword: '침대방수패드퀸',
-        campaign: '쇼핑검색_주력베스트상품',
-        adGroup: '침구_패드단품',
-        bid: 360,
-        avgRank: 1.7,
-        impressions: 11200,
-        clicks: 230,
-        cost: 78200,
-        conversions: 4,
-        sales: 159000
-      },
-      {
-        id: 'kw-7',
-        keyword: '미끄럼방지소파패드',
-        campaign: '쇼핑검색_신상품_확장노출',
-        adGroup: '리빙_소파패드',
-        bid: 210,
-        avgRank: 5.4,
-        impressions: 7800,
-        clicks: 115,
-        cost: 23000,
-        conversions: 6,
-        sales: 228000
-      },
-      {
-        id: 'kw-8',
-        keyword: '중고카페트 나눔',
-        campaign: '쇼핑검색_신상품_확장노출',
-        adGroup: '리빙_러그카페트',
-        bid: 280,
-        avgRank: 2.0,
-        impressions: 3400,
-        clicks: 82,
-        cost: 21320,
-        conversions: 0,
-        sales: 0
-      }
-    ],
-    negativeKeywords: [
-      '이불세탁망',
-      '저렴한원룸이불',
-      '거실대형러그',
-      '중고카페트 나눔',
-      '무료나눔',
-      '대여',
-      '세탁법'
-    ],
-    optimizationLogs: [
-      {
-        id: 'log-1',
-        date: getDateStrDaysAgo(2),
-        text: '초기 계정 진단 세팅 완료: 목표 마진율 35% (손익분기 ROAS 286%) 기준 설정'
-      },
-      {
-        id: 'log-2',
-        date: getDateStrDaysAgo(0),
-        text: 'junhs3973 계정 API 라이선스 연동 준비 완료 및 비효율 확장키워드 4건 추출'
-      }
-    ],
-    dailyTrends
-  };
+    {
+      "id": "cmp-a001-02-000000009858653",
+      "name": "01. 명함 (일시중지)",
+      "type": "쇼핑검색",
+      "dailyBudget": 10000,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "cmp-a001-02-000000009884679",
+      "name": "02. 스티커제작 (일시중지)",
+      "type": "쇼핑검색",
+      "dailyBudget": 10000,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "cmp-a001-02-000000009884684",
+      "name": "03. 벌크 (운영중)",
+      "type": "쇼핑검색",
+      "dailyBudget": 5000,
+      "impressions": 22851,
+      "clicks": 190,
+      "cost": 112693,
+      "conversions": 12,
+      "sales": 396000
+    },
+    {
+      "id": "cmp-a001-02-000000009935506",
+      "name": "M_주누디자인_명함 (일시중지)",
+      "type": "쇼핑검색",
+      "dailyBudget": 20000,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "cmp-a001-02-000000009935560",
+      "name": "M_주누디자인_전상품 (일시중지)",
+      "type": "쇼핑검색",
+      "dailyBudget": 10000,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "cmp-a001-02-000000009935571",
+      "name": "M_주누디자인_스티커제작 (일시중지)",
+      "type": "쇼핑검색",
+      "dailyBudget": 20000,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    }
+  ],
+  "products": [
+    {
+      "id": "nad-a001-02-000000523569150",
+      "name": "[01. 통검 / 쇼검] 무료디자인 독특한 금박 고급 부동산 홍보 주문제작 대구 명함 소량 인쇄 코팅 명함제작 (품질지수:3칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 700,
+      "avgRank": 6.72,
+      "impressions": 3278,
+      "clicks": 30,
+      "cost": 18059,
+      "conversions": 8,
+      "sales": 212000
+    },
+    {
+      "id": "nad-a001-02-000000423648469",
+      "name": "[01. 통검 / 쇼검] 카다로그 카달로그 카탈로그 디자인 인쇄 대구 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 800,
+      "avgRank": 5.88,
+      "impressions": 1946,
+      "clicks": 3,
+      "cost": 1805,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648470",
+      "name": "[01. 통검 / 쇼검] 리플렛 팜플렛 디자인 인쇄 주누디자인 (품질지수:3칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 800,
+      "avgRank": 7.31,
+      "impressions": 3894,
+      "clicks": 19,
+      "cost": 15186,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648471",
+      "name": "[01. 통검 / 쇼검] 빌지 영수증 양식지 거래명세서 NCR지 인쇄제작 서식지 먹지 주누디자인 (품질지수:2칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 700,
+      "avgRank": 3.33,
+      "impressions": 5680,
+      "clicks": 57,
+      "cost": 32964,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648472",
+      "name": "[01. 통검 / 쇼검] 취급주의 스티커 1000매 냉동보관 식품배송 식물배송 파손주의 배달용품 (품질지수:2칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 500,
+      "avgRank": 10.11,
+      "impressions": 291,
+      "clicks": 1,
+      "cost": 516,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648473",
+      "name": "[01. 통검 / 쇼검] 디자인무료 전단지 종이자석 봉투 자석 현수막 주문 인쇄 전단지제작 대구 인쇄물 배달 홍보 (품질지수:3칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 500,
+      "avgRank": 3.74,
+      "impressions": 1194,
+      "clicks": 8,
+      "cost": 2497,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000571672792",
+      "name": "[01. 통검 / 쇼검] 맞춤 실사출력 시트지 인쇄 주문제작 (유포지 합성지 PVC켈지 그레이 실내외용) (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 800,
+      "avgRank": 8.28,
+      "impressions": 1452,
+      "clicks": 38,
+      "cost": 28815,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000557080435",
+      "name": "[01. 통검 / 쇼검] 스티커 제작 무료디자인 주문 코팅 독특 원형 고급 유포지 도무송 스티커주문 대구 인쇄 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "01. 통검 / 쇼검",
+      "bid": 500,
+      "avgRank": 3.04,
+      "impressions": 1272,
+      "clicks": 7,
+      "cost": 2545,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000523569194",
+      "name": "[02. 플러스] 무료디자인 독특한 금박 고급 부동산 홍보 주문제작 대구 명함 소량 인쇄 코팅 명함제작 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 3.9,
+      "impressions": 200,
+      "clicks": 2,
+      "cost": 916,
+      "conversions": 3,
+      "sales": 124000
+    },
+    {
+      "id": "nad-a001-02-000000571672996",
+      "name": "[02. 플러스] 맞춤 실사출력 시트지 인쇄 주문제작 (유포지 합성지 PVC켈지 그레이 실내외용) (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 5.37,
+      "impressions": 94,
+      "clicks": 1,
+      "cost": 411,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000557084269",
+      "name": "[02. 플러스] 스티커 제작 무료디자인 주문 코팅 독특 원형 고급 유포지 도무송 스티커주문 대구 인쇄 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 3.25,
+      "impressions": 167,
+      "clicks": 2,
+      "cost": 638,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648544",
+      "name": "[02. 플러스] 카다로그 카달로그 카탈로그 디자인 인쇄 대구 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 4.25,
+      "impressions": 77,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648545",
+      "name": "[02. 플러스] 리플렛 팜플렛 디자인 인쇄 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 4.48,
+      "impressions": 104,
+      "clicks": 2,
+      "cost": 958,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648546",
+      "name": "[02. 플러스] 빌지 영수증 양식지 거래명세서 NCR지 인쇄제작 서식지 먹지 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 660,
+      "avgRank": 4.15,
+      "impressions": 529,
+      "clicks": 2,
+      "cost": 1126,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648547",
+      "name": "[02. 플러스] 취급주의 스티커 1000매 냉동보관 식품배송 식물배송 파손주의 배달용품 (품질지수:3칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 13.54,
+      "impressions": 100,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648548",
+      "name": "[02. 플러스] 디자인무료 전단지 종이자석 봉투 자석 현수막 주문 인쇄 전단지제작 대구 인쇄물 배달 홍보 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "02. 플러스",
+      "bid": 500,
+      "avgRank": 2.87,
+      "impressions": 168,
+      "clicks": 4,
+      "cost": 1813,
+      "conversions": 1,
+      "sales": 60000
+    },
+    {
+      "id": "nad-a001-02-000000523569236",
+      "name": "[03. 추천/ 콘텐츠] 무료디자인 독특한 금박 고급 부동산 홍보 주문제작 대구 명함 소량 인쇄 코팅 명함제작 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 4.7,
+      "impressions": 435,
+      "clicks": 5,
+      "cost": 1637,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648566",
+      "name": "[03. 추천/ 콘텐츠] 카다로그 카달로그 카탈로그 디자인 인쇄 대구 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 5.13,
+      "impressions": 10,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648567",
+      "name": "[03. 추천/ 콘텐츠] 리플렛 팜플렛 디자인 인쇄 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 4.04,
+      "impressions": 130,
+      "clicks": 2,
+      "cost": 586,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648568",
+      "name": "[03. 추천/ 콘텐츠] 빌지 영수증 양식지 거래명세서 NCR지 인쇄제작 서식지 먹지 주누디자인 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 2.49,
+      "impressions": 783,
+      "clicks": 1,
+      "cost": 399,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648569",
+      "name": "[03. 추천/ 콘텐츠] 취급주의 스티커 1000매 냉동보관 식품배송 식물배송 파손주의 배달용품 (품질지수:3칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 5.12,
+      "impressions": 13,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000423648570",
+      "name": "[03. 추천/ 콘텐츠] 디자인무료 전단지 종이자석 봉투 자석 현수막 주문 인쇄 전단지제작 대구 인쇄물 배달 홍보 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 6.15,
+      "impressions": 231,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000571673184",
+      "name": "[03. 추천/ 콘텐츠] 맞춤 실사출력 시트지 인쇄 주문제작 (유포지 합성지 PVC켈지 그레이 실내외용) (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 3.52,
+      "impressions": 192,
+      "clicks": 3,
+      "cost": 871,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nad-a001-02-000000557084640",
+      "name": "[03. 추천/ 콘텐츠] 스티커 제작 무료디자인 주문 코팅 독특 원형 고급 유포지 도무송 스티커주문 대구 인쇄 (품질지수:4칸)",
+      "campaign": "03. 벌크",
+      "adGroup": "03. 추천/ 콘텐츠",
+      "bid": 400,
+      "avgRank": 5.82,
+      "impressions": 611,
+      "clicks": 3,
+      "cost": 945,
+      "conversions": 0,
+      "sales": 0
+    }
+  ],
+  "keywords": [
+    {
+      "id": "nkw-a001-01-000007595438355",
+      "keyword": "명함 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 명함",
+      "bid": 900,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007596396013",
+      "keyword": "명함제작 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 명함",
+      "bid": 450,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007596396018",
+      "keyword": "명함인쇄 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 명함",
+      "bid": 700,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007596396021",
+      "keyword": "명함만들기 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 명함",
+      "bid": 900,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007596396023",
+      "keyword": "셀프명함만들기 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 명함",
+      "bid": 900,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007596396025",
+      "keyword": "명함주문제작 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 명함",
+      "bid": 900,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007733531767",
+      "keyword": "리뷰스티커 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 제작스티커",
+      "bid": 70,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007733531768",
+      "keyword": "스티커제작 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 제작스티커",
+      "bid": 70,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007733531770",
+      "keyword": "서비스스티커 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 제작스티커",
+      "bid": 70,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007733531771",
+      "keyword": "배달스티커 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 제작스티커",
+      "bid": 70,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007733531774",
+      "keyword": "스티커주문제작 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "MO) 제작스티커",
+      "bid": 70,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007600865501",
+      "keyword": "명함 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "PC) 명함",
+      "bid": 1320,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007600865502",
+      "keyword": "명함제작 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "PC) 명함",
+      "bid": 1540,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007600865503",
+      "keyword": "명함인쇄 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "PC) 명함",
+      "bid": 900,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007600865504",
+      "keyword": "명함만들기 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "PC) 명함",
+      "bid": 1470,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007600865505",
+      "keyword": "셀프명함만들기 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "PC) 명함",
+      "bid": 540,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    },
+    {
+      "id": "nkw-a001-01-000007600865506",
+      "keyword": "명함주문제작 (캠페인 일시중지 상태)",
+      "campaign": "파워) 주누",
+      "adGroup": "PC) 명함",
+      "bid": 1050,
+      "avgRank": 3.0,
+      "impressions": 0,
+      "clicks": 0,
+      "cost": 0,
+      "conversions": 0,
+      "sales": 0
+    }
+  ],
+  "negativeKeywords": [
+    "영수증양식",
+    "거래명세서양식",
+    "거래명세서엑셀",
+    "무료양식",
+    "간이영수증양식",
+    "명함도안무료",
+    "미리캔버스",
+    "전단지샘플",
+    "카달로그제작방법",
+    "리플렛양식",
+    "시트지제거",
+    "다이소시트지"
+  ],
+  "optimizationLogs": [
+    {
+      "id": "log-real-1",
+      "date": "2026-10-20",
+      "text": "[실시간 계정 진단 완료] 주누디자인(1571548) 최근 30일 광고비 112,693원 / 전환매출 396,000원 (ROAS 351%, 전환 12건)"
+    },
+    {
+      "id": "log-real-2",
+      "date": "2026-10-20",
+      "text": "[핵심 발견] 명함(ROAS 1,630%, 11건 전환)과 전단지(ROAS 3,309%, 1건 전환)가 매출 100% 견인 중!"
+    },
+    {
+      "id": "log-real-3",
+      "date": "2026-10-20",
+      "text": "[누수 경보] 빌지/영수증(32,964원, 0건), 실사출력시트지(28,815원, 0건), 리플렛(15,186원, 0건) 3개 상품이 전체 광고비의 68%(76,965원) 무전환 소진 중"
+    }
+  ],
+  "dailyTrends": [
+    {
+      "date": "10-06",
+      "cost": 4962,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-07",
+      "cost": 4655,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-08",
+      "cost": 5217,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-09",
+      "cost": 4553,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-10",
+      "cost": 4351,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-11",
+      "cost": 4812,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-12",
+      "cost": 4607,
+      "sales": 14000,
+      "roas": 304
+    },
+    {
+      "date": "10-13",
+      "cost": 4760,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-14",
+      "cost": 5311,
+      "sales": 38000,
+      "roas": 715
+    },
+    {
+      "date": "10-15",
+      "cost": 4632,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-16",
+      "cost": 5315,
+      "sales": 60000,
+      "roas": 1129
+    },
+    {
+      "date": "10-17",
+      "cost": 4699,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-18",
+      "cost": 3863,
+      "sales": 0,
+      "roas": 0
+    },
+    {
+      "date": "10-19",
+      "cost": 4980,
+      "sales": 0,
+      "roas": 0
+    }
+  ]
+};
 }
 
 // 전역 상태 로드
@@ -349,7 +823,7 @@ function loadApiConfig() {
   } catch (e) {}
   return {
     loginId: 'junhs3973',
-    customerId: '',
+    customerId: '1571548',
     accessLicense: '',
     secretKey: ''
   };
